@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - food-net
+
+  order-service:
+    build:
+      context: ./order_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    command: ["./wait-for-rabbitmq.sh", "./order-service"]
+    networks:
+      - food-net
+
+  # kitchen-service:
+  #   build: ./kitchen-service
+  #   depends_on:
+  #     - rabbitmq
+
+networks:
+  food-net:
